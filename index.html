@@ -2,11 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <script src="//d3js.org/d3.v7.min.js"></script>
-    <script src="code.js"></script>
-    <title>Visualisations</title>
+    <title>Data Science Salaries Visualization</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        .bar { fill: steelblue; }
+    </style>
 </head>
 <body>
-    
+    <label for="experience-level">Odaberi Razinu Iskustva:</label>
+    <select id="experience-level">
+        <option value="ALL">Sve</option>
+        <option value="EN">Entry</option>
+        <option value="MI">Mid</option>
+        <option value="SE">Senior</option>
+        <option value="EX">Expert</option>
+    </select>
+    <div id="bar-chart"></div>
+    <script src="code.js"></script>
 </body>
 </html>
