@@ -55,6 +55,8 @@ d3.csv("ds_salaries.csv").then(data => {
             .append("rect")
             .attr("class", "bar")
             .on("mouseover", function (event, d) {
+                d3.select(this)
+                    .style("fill", "darkblue");
                 tooltip.transition()
                     .duration(200)
                     .style("opacity", .9);
@@ -69,6 +71,8 @@ d3.csv("ds_salaries.csv").then(data => {
             })
             // Dodajte event listener za mouseout
             .on("mouseout", function (d) {
+                d3.select(this)
+                    .style("fill", "steelblue");
                 tooltip.transition()
                     .duration(500)
                     .style("opacity", 0);
