@@ -3,6 +3,9 @@ d3.csv("ds_salaries.csv").then(data => {
         d.salary_in_usd = +d.salary_in_usd;
     });
 
+    const tooltip = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
     // Kreiranje stupčastog grafikona za prikaz prosječnih plaća po titulama posla
     const salaryByJob = d3.rollups(data, v => d3.mean(v, d => d.salary_in_usd), d => d.job_title);
 
@@ -33,7 +36,7 @@ d3.csv("ds_salaries.csv").then(data => {
         .style("text-anchor", "middle")
         .text("Average Salary (USD)");
 
-        
+
 
     // mislim da je dobra funckija
     const updateChart = (experienceLevel) => {
@@ -51,6 +54,25 @@ d3.csv("ds_salaries.csv").then(data => {
         bars.enter()
             .append("rect")
             .attr("class", "bar")
+            .on("mouseover", function (event, d) {
+                tooltip.transition()
+                    .duration(200)
+                    .style("opacity", .9);
+                tooltip.html(d[0]) // Postavite naziv posla kao sadržaj tooltip-a
+                    .style("left", (event.pageX) + "px")
+                    .style("top", (event.pageY - 28) + "px");
+            })
+            // Dodajte event listener za mousemove
+            .on("mousemove", function (event, d) {
+                tooltip.style("left", (event.pageX) + "px")
+                    .style(".top", (event.pageY - 28) + "px");
+            })
+            // Dodajte event listener za mouseout
+            .on("mouseout", function (d) {
+                tooltip.transition()
+                    .duration(500)
+                    .style("opacity", 0);
+            })
             .merge(bars) // Spajanje nove i postojeće selekcije
             .transition() // Dodajte tranziciju za glađe ažuriranje
             .attr("x", d => xScale(d[0]))
@@ -66,10 +88,6 @@ d3.csv("ds_salaries.csv").then(data => {
 
         barChartSvg.selectAll(".x-axis")
             .attr("transform", "translate(0," + barChartHeight + ")")
-            .call(d3.axisBottom(xScale));
-
-            barChartSvg.selectAll(".x-axis")
-            .attr("transform", "translate(0," + barChartHeight + ")")
             .call(d3.axisBottom(xScale))
             .selectAll("text") // Selektiramo sve tekstualne elemente oznake x-osi
             .attr("text-anchor", "end") // Poravnavamo tekst s kraja
@@ -80,7 +98,7 @@ d3.csv("ds_salaries.csv").then(data => {
         barChartSvg.selectAll(".y-axis")
             .call(d3.axisLeft(yScale)); // Ažuriranje y-osi
     };
-    
+
 
     updateChart("ALL");
 
