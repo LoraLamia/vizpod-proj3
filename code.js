@@ -6,7 +6,7 @@ d3.csv("ds_salaries.csv").then(data => {
     // Kreiranje stupčastog grafikona za prikaz prosječnih plaća po titulama posla
     const salaryByJob = d3.rollups(data, v => d3.mean(v, d => d.salary_in_usd), d => d.job_title);
 
-    const margin = { top: 50, right: 50, bottom: 100, left: 100 };
+    const margin = { top: 30, right: 50, bottom: 130, left: 100 };
 
     const barChartWidth = 1000, barChartHeight = 800;
     const xScale = d3.scaleBand()
@@ -24,14 +24,6 @@ d3.csv("ds_salaries.csv").then(data => {
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    // Dodavanje oznake na X osi
-    barChartSvg.append("text")
-        .attr("class", "x-axis-label")
-        .attr("x", barChartWidth / 2)
-        .attr("y", barChartHeight + 40)
-        .style("text-anchor", "middle")
-        .text("Job Title");
-
     // Dodavanje oznake na Y osi
     barChartSvg.append("text")
         .attr("class", "y-axis-label")
@@ -40,6 +32,8 @@ d3.csv("ds_salaries.csv").then(data => {
         .attr("y", -70)
         .style("text-anchor", "middle")
         .text("Average Salary (USD)");
+
+        
 
     // mislim da je dobra funckija
     const updateChart = (experienceLevel) => {
@@ -74,9 +68,19 @@ d3.csv("ds_salaries.csv").then(data => {
             .attr("transform", "translate(0," + barChartHeight + ")")
             .call(d3.axisBottom(xScale));
 
+            barChartSvg.selectAll(".x-axis")
+            .attr("transform", "translate(0," + barChartHeight + ")")
+            .call(d3.axisBottom(xScale))
+            .selectAll("text") // Selektiramo sve tekstualne elemente oznake x-osi
+            .attr("text-anchor", "end") // Poravnavamo tekst s kraja
+            .attr("transform", "rotate(-90)") // Rotiramo tekst za -90 stupnjeva
+            .attr("dx", "-.8em") // Pomičemo tekst udesno
+            .attr("dy", "em");
+
         barChartSvg.selectAll(".y-axis")
             .call(d3.axisLeft(yScale)); // Ažuriranje y-osi
     };
+    
 
     updateChart("ALL");
 
