@@ -9,7 +9,7 @@ d3.csv("ds_salaries.csv").then(data => {
     // Kreiranje stupčastog grafikona za prikaz prosječnih plaća po titulama posla
     const salaryByJob = d3.rollups(data, v => d3.mean(v, d => d.salary_in_usd), d => d.job_title);
 
-    const margin = { top: 30, right: 50, bottom: 130, left: 100 };
+    const margin = {top: 30, right: 50, bottom: 130, left: 100};
 
     const barChartWidth = 1000, barChartHeight = 800;
     const xScale = d3.scaleBand()
@@ -35,7 +35,6 @@ d3.csv("ds_salaries.csv").then(data => {
         .attr("y", -70)
         .style("text-anchor", "middle")
         .text("Average Salary (USD)");
-
 
 
     // mislim da je dobra funckija
@@ -103,10 +102,94 @@ d3.csv("ds_salaries.csv").then(data => {
             .call(d3.axisLeft(yScale)); // Ažuriranje y-osi
     };
 
+    const lineChartMargin = {top: 10, right: 50, bottom: 30, left: 100};
+    const lineChartWidth = 960 - lineChartMargin.left - lineChartMargin.right;
+    const lineChartHeight = 500 - lineChartMargin.top - lineChartMargin.bottom;
 
+    const xScaleLine = d3.scalePoint()
+        .range([0, lineChartWidth])
+        .padding(0.1);
+    const yScaleLine = d3.scaleLinear()
+        .range([lineChartHeight, 0]);
+
+    const line = d3.line()
+        .x(d => xScaleLine(d[0]))
+        .y(d => yScaleLine(d[1]));
+
+    const lineChartSvg = d3.select("#line-chart").append("svg")
+        .attr("width", lineChartWidth + lineChartMargin.left + lineChartMargin.right)
+        .attr("height", lineChartHeight + lineChartMargin.top + lineChartMargin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + lineChartMargin.left + "," + lineChartMargin.top + ")");
+
+    // Function to update the Line Chart
+    function updateLineChart(experienceLevel) {
+        let filteredData = experienceLevel === "ALL" ? data : data.filter(d => d.experience_level === experienceLevel);
+
+        // Group and average salary by company size
+        const salaryByCompanySize = d3.rollups(filteredData,
+            v => d3.mean(v, d => d.salary_in_usd),
+            d => d.company_size)
+            .sort((a, b) => a[0].localeCompare(b[0]));
+
+        xScaleLine.domain(salaryByCompanySize.map(d => d[0]));
+        yScaleLine.domain([0, d3.max(salaryByCompanySize, d => d[1])]);
+
+        // Bind the data to the line
+        const lines = lineChartSvg.selectAll(".line")
+            .data([salaryByCompanySize], d => d[0]);
+
+        lines.enter().append("path")
+            .attr("class", "line")
+            .merge(lines)
+            .transition()
+            .duration(750)
+            .attr("d", line)
+            .attr("fill", "none") // Ensures the area under the line isn't filled
+            .attr("stroke", "blue") // Sets the line color
+            .attr("stroke-width", "2px");
+
+        lines.exit().remove();
+
+        const xAxisLine = d3.axisBottom(xScaleLine);
+        lineChartSvg.selectAll(".x-axis-line")
+            .data([0])
+            .join("g")
+            .attr("class", "x-axis-line")
+            .attr("transform", "translate(0," + lineChartHeight + ")")
+            .call(xAxisLine);
+
+        // Create or update the Y Axis
+        const yAxisLine = d3.axisLeft(yScaleLine)
+            .tickFormat(d => "$" + d3.format(",")(d)); // Format as currency
+        lineChartSvg.selectAll(".y-axis-line")
+            .data([0])
+            .join("g")
+            .attr("class", "y-axis-line")
+            .call(yAxisLine);
+    }
+
+    updateLineChart("ALL");
     updateChart("ALL");
 
     d3.select("#experience-level").on("change", function () {
         updateChart(this.value);
+        updateLineChart(this.value);
     });
 });
+
+
+// d3.csv("ds_salaries.csv").then(data => {
+//     data.forEach(d => {
+//         d.salary_in_usd = +d.salary_in_usd; // Convert salary to number
+//     });
+//
+//     // Existing Bar Chart setup and functions
+//     // ...
+//
+//     // Line Chart Setup
+//
+//
+// });
+
+

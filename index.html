@@ -6,17 +6,20 @@
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
         .x-axis-label {
-    font-size: 14px;
-}
+            font-size: 14px;
+        }
 
-.y-axis-label {
-    font-size: 14px;
-}
+        .y-axis-label {
+            font-size: 14px;
+        }
 
-        .bar { fill: steelblue; }
+        .bar {
+            fill: steelblue;
+        }
     </style>
 </head>
 <body>
+<div class="header">
     <label for="experience-level">Odaberi Razinu Iskustva:</label>
     <select id="experience-level">
         <option value="ALL">Sve</option>
@@ -25,7 +28,14 @@
         <option value="SE">Senior</option>
         <option value="EX">Expert</option>
     </select>
-    <div id="bar-chart"></div>
+</div>
+<div class="container" style="display: flex">
+    <div class="col-md-6">
+        <div id="bar-chart"></div>
+    </div>
+    <div class="col-md-6">
+        <div id="line-chart"></div>
+    </div>
     <script src="code.js"></script>
 </body>
 </html>
