@@ -109,4 +109,75 @@ d3.csv("ds_salaries.csv").then(data => {
     d3.select("#experience-level").on("change", function () {
         updateChart(this.value);
     });
+
+
+    const locations = Array.from(new Set(data.map(d => d.company_location)));
+    const locationScale = d3.scaleOrdinal()
+        .domain(locations)
+        .range(d3.range(locations.length));
+
+    // Pie Chart za 'remote_ratio'
+    const pieData = d3.rollups(data, v => v.length, d => d.remote_ratio);
+    const pie = d3.pie().value(d => d[1])(pieData);
+    const arc = d3.arc().innerRadius(0).outerRadius(200);
+
+    const pieChartSvg = d3.select("#pie-chart")
+        .append("svg")
+        .attr("width", 400)
+        .attr("height", 400)
+        .append("g")
+        .attr("transform", "translate(200, 200)");
+
+    pieChartSvg.selectAll("path")
+        .data(pie)
+        .enter().append("path")
+        .attr("d", arc)
+        .attr("fill", d => d3.schemeCategory10[d.index % 10])
+        .on("mouseover", function (event, d) {
+            // Interaktivnost: istaknite odgovarajuće točke na Scatter Plot-u
+        });
+
+    // Scatter Plot za 'salary_in_usd' i kodiranu 'company_location'
+    const marginB = { top: 30, right: 50, bottom: 130, left: 100 };
+
+    const svgWidth = 1347; // Povećajte ovo prema potrebi
+    const svgHeight = 768; // Visina može ostati ista ili se prilagoditi
+
+    const xScaleB = d3.scalePoint()
+        .domain(locations)
+        .range([0, svgWidth - margin.left - margin.right]);
+    const yScaleB = d3.scaleLinear()
+        .domain([0, d3.max(data, d => d.salary_in_usd)])
+        .range([svgHeight - margin.top - margin.bottom, 0]);
+    const scatterPlotSvg = d3.select("#scatter-plot")
+        .append("svg")
+        .attr("width", svgWidth)
+        .attr("height", svgHeight)
+        .append("g")
+        .attr("transform", "translate(" + marginB.left + "," + marginB.top + ")");
+
+    scatterPlotSvg.selectAll("circle")
+        .data(data)
+        .enter().append("circle")
+        .attr("cx", d => xScaleB(d.company_location))
+        .attr("cy", d => yScaleB(d.salary_in_usd))
+        .attr("r", 5)
+        .style("fill", "blue")
+        .on("mouseover", function (event, d) {
+            // Interaktivnost: istaknite odgovarajući dio na Pie Chart-u
+        });
+
+    // Dodajte osi za Scatter Plot
+    scatterPlotSvg.append("g")
+    .attr("class", "x-axis")
+    .attr("transform", "translate(0," + (svgHeight - margin.top - margin.bottom) + ")")
+    .call(d3.axisBottom(xScaleB))
+    .selectAll("text")
+        .attr("transform", "rotate(-45)")
+        .style("text-anchor", "end");
+
+// Dodavanje y-osi
+scatterPlotSvg.append("g")
+    .attr("class", "y-axis")
+    .call(d3.axisLeft(yScaleB));
 });
