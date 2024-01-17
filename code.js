@@ -160,6 +160,21 @@ d3.csv("ds_salaries.csv").then(data => {
         .attr("class", "y-axis")
         .call(d3.axisLeft(yScaleB));
 
+    scatterPlotSvg.append("text")
+        .attr("class", "y-axis-label")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - marginB.left)
+        .attr("x", 0 - (svgHeight / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Salary (USD)");
+
+    scatterPlotSvg.append("text")
+        .attr("class", "x-axis-label")
+        .style("text-anchor", "middle")
+        .attr("x", svgWidth / 2) 
+        .attr("y", svgHeight - marginB.bottom - 30)
+        .text("Company Location");
 
     // Pie Chart za 'remote_ratio'
     const pieData = d3.rollups(data, v => v.length, d => d.remote_ratio);
@@ -188,25 +203,25 @@ d3.csv("ds_salaries.csv").then(data => {
         .style("vertical-align", "top")
         .style("margin-left", "20px");
 
-        var color = d3.scaleOrdinal(d3.schemeCategory10);
+    var color = d3.scaleOrdinal(d3.schemeCategory10);
 
-        const legend = pieChartSvg.selectAll('.legend')
+    const legend = pieChartSvg.selectAll('.legend')
         .data(pieData)
         .enter()
         .append('g')
         .attr('class', 'legend')
-        .attr('transform', function(d, i) {
+        .attr('transform', function (d, i) {
             const x = -pieRadius;
             const y = pieRadius + legendSpacing + i * legendHeight;
             return `translate(${x}, ${y})`;
         });
-    
+
     legend.append('rect')
         .attr('width', legendRectSize)
         .attr('height', legendRectSize)
-        .style('fill', (d, i) => color(i)) // Koristimo funkciju boja da odgovara segmentima pie charta
-    .style('stroke', (d, i) => color(i));
-    
+        .style('fill', (d, i) => color(i))
+        .style('stroke', (d, i) => color(i));
+
     legend.append('text')
         .attr('x', legendRectSize + legendSpacing)
         .attr('y', legendRectSize - legendSpacing)
