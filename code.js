@@ -116,35 +116,15 @@ d3.csv("ds_salaries.csv").then(data => {
         .domain(locations)
         .range(d3.range(locations.length));
 
-    // Pie Chart za 'remote_ratio'
-    const pieData = d3.rollups(data, v => v.length, d => d.remote_ratio);
-    const pie = d3.pie().value(d => d[1])(pieData);
-    const arc = d3.arc().innerRadius(0).outerRadius(200);
-
-    const pieChartSvg = d3.select("#pie-chart")
-        .append("svg")
-        .attr("width", 400)
-        .attr("height", 400)
-        .append("g")
-        .attr("transform", "translate(200, 200)");
-
-    pieChartSvg.selectAll("path")
-        .data(pie)
-        .enter().append("path")
-        .attr("d", arc)
-        .attr("fill", d => d3.schemeCategory10[d.index % 10])
-        .on("mouseover", function (event, d) {
-            // Interaktivnost: istaknite odgovarajuće točke na Scatter Plot-u
-        });
 
     // Scatter Plot za 'salary_in_usd' i kodiranu 'company_location'
     const marginB = { top: 30, right: 50, bottom: 130, left: 100 };
 
-    const svgWidth = 1347; // Povećajte ovo prema potrebi
+    const svgWidth = 1300; // Povećajte ovo prema potrebi
     const svgHeight = 768; // Visina može ostati ista ili se prilagoditi
 
     const xScaleB = d3.scalePoint()
-        .domain(locations)
+        .domain(['', ...locations]) // Dodavanje praznog stringa na početak niza
         .range([0, svgWidth - margin.left - margin.right]);
     const yScaleB = d3.scaleLinear()
         .domain([0, d3.max(data, d => d.salary_in_usd)])
@@ -156,6 +136,8 @@ d3.csv("ds_salaries.csv").then(data => {
         .append("g")
         .attr("transform", "translate(" + marginB.left + "," + marginB.top + ")");
 
+    let selectedLocation = null;
+    let selectedRemoteRatio = null
     scatterPlotSvg.selectAll("circle")
         .data(data)
         .enter().append("circle")
@@ -164,20 +146,69 @@ d3.csv("ds_salaries.csv").then(data => {
         .attr("r", 5)
         .style("fill", "blue")
         .on("mouseover", function (event, d) {
-            // Interaktivnost: istaknite odgovarajući dio na Pie Chart-u
+            selectedLocation = d.company_location;
+            selectedRemoteRatio = d.remote_ratio;
+
+            // Ažurirajte boju odgovarajućeg slice-a u Pie Chartu
+            pieChartSvg.selectAll("path")
+                .attr("fill", pieData => (pieData.data[0] === selectedRemoteRatio) ? "red" : "gray");
+
+            // Ažurirajte boje točaka u Scatter Plota koje odgovaraju odabranoj lokaciji i omjeru daljinskog rada
+        })
+        .on("mouseout", function () {
+            // Poništite označavanje i vrati boje na prethodne vrijednosti
+            selectedLocation = null;
+            pieChartSvg.selectAll("path")
+                .attr("fill", d => d3.schemeCategory10[d.index % 10]);
         });
 
     // Dodajte osi za Scatter Plot
     scatterPlotSvg.append("g")
-    .attr("class", "x-axis")
-    .attr("transform", "translate(0," + (svgHeight - margin.top - margin.bottom) + ")")
-    .call(d3.axisBottom(xScaleB))
-    .selectAll("text")
+        .attr("class", "x-axis")
+        .attr("transform", "translate(0," + (svgHeight - margin.top - margin.bottom) + ")")
+        .call(d3.axisBottom(xScaleB))
+        .selectAll("text")
         .attr("transform", "rotate(-45)")
         .style("text-anchor", "end");
 
-// Dodavanje y-osi
-scatterPlotSvg.append("g")
-    .attr("class", "y-axis")
-    .call(d3.axisLeft(yScaleB));
+    // Dodavanje y-osi
+    scatterPlotSvg.append("g")
+        .attr("class", "y-axis")
+        .call(d3.axisLeft(yScaleB));
+
+
+    // Pie Chart za 'remote_ratio'
+    const pieData = d3.rollups(data, v => v.length, d => d.remote_ratio);
+    const pie = d3.pie().value(d => d[1])(pieData);
+
+    const pieWidth = 300;
+    const pieHeight = 300;
+    const pieRadius = pieWidth / 2;
+
+    const pieChartSvg = d3.select("#pie-chart")
+        .append("svg")
+        .attr("width", pieWidth) // Smanjena širina
+        .attr("height", pieHeight) // Smanjena visina
+        .append("g")
+        .attr("transform", "translate(" + pieRadius + "," + pieRadius + ")"); // Centriranje Pie Charta
+
+    const arc = d3.arc().innerRadius(0).outerRadius(pieRadius);
+
+    d3.select("#scatter-plot").style("display", "inline-block");
+    d3.select("#pie-chart")
+        .style("display", "inline-block")
+        .style("vertical-align", "top")// Dodajte malo margine za razmak
+        .style("margin-left", "20px");
+
+    pieChartSvg.selectAll("path")
+        .data(pie)
+        .enter().append("path")
+        .attr("d", arc)
+        .attr("fill", d => d3.schemeCategory10[d.index % 10])
+        .on("mouseover", function (event, d) {
+  
+        })
+        .on("mouseout", function () {
+
+        });
 });
