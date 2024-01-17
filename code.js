@@ -130,7 +130,7 @@ d3.csv("ds_salaries.csv").then(data => {
         .attr("cx", d => xScaleB(d.company_location))
         .attr("cy", d => yScaleB(d.salary_in_usd))
         .attr("r", 5)
-        .style("fill", "steelblue")
+        .style("fill", "darkred")
         .attr("class", d => "scatter-plot-point remote-ratio-" + d.remote_ratio)
         .on("mouseover", function (event, d) {
             selectedRemoteRatio = d.remote_ratio;
@@ -143,7 +143,7 @@ d3.csv("ds_salaries.csv").then(data => {
         .on("mouseout", function () {
 
             d3.select(this)
-                .style("fill", "steelblue");
+                .style("fill", "darkred");
             d3.selectAll(".pie-part.remote-ratio-" + selectedRemoteRatio)
                 .style("fill", d => d3.schemeCategory10[d.index % 10]);
         });
@@ -225,7 +225,7 @@ d3.csv("ds_salaries.csv").then(data => {
     legend.append('text')
         .attr('x', legendRectSize + legendSpacing)
         .attr('y', legendRectSize - legendSpacing)
-        .text(d => `Remote Ratio: ${d[0]}`);
+        .text(d => `Remote Ratio: ${d[0]}` + '%');
 
     pieChartSvg.selectAll("path")
         .data(pie)
@@ -243,6 +243,6 @@ d3.csv("ds_salaries.csv").then(data => {
             d3.select(this)
                 .style("fill", d => d3.schemeCategory10[d.index % 10]);
             d3.selectAll(".scatter-plot-point")
-                .style("fill", "steelblue");
+                .style("fill", "darkred");
         });
 });
