@@ -9,7 +9,7 @@ d3.csv("ds_salaries.csv").then(data => {
 
     const salaryByJob = d3.rollups(data, v => d3.mean(v, d => d.salary_in_usd), d => d.job_title);
 
-    const margin = { top: 30, right: 50, bottom: 130, left: 100 };
+    const margin = { top: 30, right: 50, bottom: 200, left: 100 };
 
     const barChartWidth = 1000, barChartHeight = 800;
     const xScale = d3.scaleBand()
@@ -137,18 +137,15 @@ d3.csv("ds_salaries.csv").then(data => {
 
             d3.select(this)
                 .style("fill", "tan");
-            // Ažurirajte boju odgovarajućeg slice-a u Pie Chartu
             d3.selectAll(".pie-part.remote-ratio-" + selectedRemoteRatio)
-            .style("fill", "tan"); // Ažurirajte boju dijela u pie chartu
-
-            // Ažurirajte boje točaka u Scatter Plota koje odgovaraju odabranoj lokaciji i omjeru daljinskog rada
+                .style("fill", "tan");
         })
         .on("mouseout", function () {
-            // Poništite označavanje i vrati boje na prethodne vrijednosti
+
             d3.select(this)
                 .style("fill", "steelblue");
-                d3.selectAll(".pie-part.remote-ratio-" + selectedRemoteRatio)
-                .style("fill", d => d3.schemeCategory10[d.index % 10]); // Vratite originalnu boju
+            d3.selectAll(".pie-part.remote-ratio-" + selectedRemoteRatio)
+                .style("fill", d => d3.schemeCategory10[d.index % 10]);
         });
 
     scatterPlotSvg.append("g")
