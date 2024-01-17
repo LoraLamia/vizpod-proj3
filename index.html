@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Data Science Salaries Visualization</title>
@@ -16,8 +17,20 @@
         .bar {
             fill: steelblue;
         }
+
+        .tooltip {
+            position: fixed;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            margin-top: 50px;
+        }
     </style>
 </head>
+
 <body>
 <div class="header">
     <label for="experience-level">Odaberi Razinu Iskustva:</label>
@@ -29,13 +42,19 @@
         <option value="EX">Expert</option>
     </select>
 </div>
-<div class="container" style="display: flex">
+<div class="container">
     <div class="col-md-6">
         <div id="bar-chart"></div>
     </div>
     <div class="col-md-6">
         <div id="line-chart"></div>
     </div>
-    <script src="code.js"></script>
+</div>
+<div id="charts-container">
+    <div id="pie-chart"></div>
+    <div id="scatter-plot"></div>
+</div>
+<script src="code.js"></script>
 </body>
+
 </html>
