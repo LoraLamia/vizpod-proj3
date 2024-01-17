@@ -169,10 +169,14 @@ d3.csv("ds_salaries.csv").then(data => {
     const pieHeight = 300;
     const pieRadius = pieWidth / 2;
 
+    const legendRectSize = 20;
+    const legendSpacing = 5;
+    const legendHeight = legendRectSize + legendSpacing;
+
     const pieChartSvg = d3.select("#pie-chart")
         .append("svg")
         .attr("width", pieWidth)
-        .attr("height", pieHeight)
+        .attr("height", pieHeight + (pieData.length * legendHeight))
         .append("g")
         .attr("transform", "translate(" + pieRadius + "," + pieRadius + ")");
 
@@ -183,6 +187,30 @@ d3.csv("ds_salaries.csv").then(data => {
         .style("display", "inline-block")
         .style("vertical-align", "top")
         .style("margin-left", "20px");
+
+        var color = d3.scaleOrdinal(d3.schemeCategory10);
+
+        const legend = pieChartSvg.selectAll('.legend')
+        .data(pieData)
+        .enter()
+        .append('g')
+        .attr('class', 'legend')
+        .attr('transform', function(d, i) {
+            const x = -pieRadius;
+            const y = pieRadius + legendSpacing + i * legendHeight;
+            return `translate(${x}, ${y})`;
+        });
+    
+    legend.append('rect')
+        .attr('width', legendRectSize)
+        .attr('height', legendRectSize)
+        .style('fill', (d, i) => color(i)) // Koristimo funkciju boja da odgovara segmentima pie charta
+    .style('stroke', (d, i) => color(i));
+    
+    legend.append('text')
+        .attr('x', legendRectSize + legendSpacing)
+        .attr('y', legendRectSize - legendSpacing)
+        .text(d => `Remote Ratio: ${d[0]}`);
 
     pieChartSvg.selectAll("path")
         .data(pie)
