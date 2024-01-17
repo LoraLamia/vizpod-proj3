@@ -26,7 +26,7 @@ d3.csv("ds_salaries.csv").then(data => {
         .attr("height", barChartHeight + margin.top + margin.bottom)
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-        
+
     barChartSvg.append("text")
         .attr("class", "y-axis-label")
         .attr("transform", "rotate(-90)")
@@ -43,7 +43,7 @@ d3.csv("ds_salaries.csv").then(data => {
         yScale.domain([0, d3.max(salaryByJob, d => d[1])]);
 
         const bars = barChartSvg.selectAll(".bar")
-            .data(salaryByJob, d => d[0]); 
+            .data(salaryByJob, d => d[0]);
 
         bars.enter()
             .append("rect")
@@ -54,7 +54,7 @@ d3.csv("ds_salaries.csv").then(data => {
                 tooltip.transition()
                     .duration(200)
                     .style("opacity", .9);
-                tooltip.html(d[0]) 
+                tooltip.html(d[0])
                     .style("left", (event.pageX) + "px")
                     .style("top", (event.pageY - 28) + "px");
             })
@@ -70,14 +70,14 @@ d3.csv("ds_salaries.csv").then(data => {
                     .duration(500)
                     .style("opacity", 0);
             })
-            .merge(bars) 
-            .transition() 
+            .merge(bars)
+            .transition()
             .attr("x", d => xScale(d[0]))
             .attr("y", d => yScale(d[1]))
             .attr("width", xScale.bandwidth())
             .attr("height", d => barChartHeight - yScale(d[1]));
 
-        bars.exit().remove(); 
+        bars.exit().remove();
 
         barChartSvg.selectAll(".x-axis").data([0]).enter().append("g").attr("class", "x-axis");
         barChartSvg.selectAll(".y-axis").data([0]).enter().append("g").attr("class", "y-axis");
@@ -85,14 +85,14 @@ d3.csv("ds_salaries.csv").then(data => {
         barChartSvg.selectAll(".x-axis")
             .attr("transform", "translate(0," + barChartHeight + ")")
             .call(d3.axisBottom(xScale))
-            .selectAll("text") 
-            .attr("text-anchor", "end") 
-            .attr("transform", "rotate(-90)") 
-            .attr("dx", "-.8em") 
+            .selectAll("text")
+            .attr("text-anchor", "end")
+            .attr("transform", "rotate(-90)")
+            .attr("dx", "-.8em")
             .attr("dy", "em");
 
         barChartSvg.selectAll(".y-axis")
-            .call(d3.axisLeft(yScale)); 
+            .call(d3.axisLeft(yScale));
     };
 
 
@@ -107,11 +107,11 @@ d3.csv("ds_salaries.csv").then(data => {
 
     const marginB = { top: 30, right: 50, bottom: 130, left: 100 };
 
-    const svgWidth = 1300; 
-    const svgHeight = 768; 
+    const svgWidth = 1300;
+    const svgHeight = 768;
 
     const xScaleB = d3.scalePoint()
-        .domain(['', ...locations]) 
+        .domain(['', ...locations])
         .range([0, svgWidth - margin.left - margin.right]);
     const yScaleB = d3.scaleLinear()
         .domain([0, d3.max(data, d => d.salary_in_usd)])
@@ -130,21 +130,25 @@ d3.csv("ds_salaries.csv").then(data => {
         .attr("cx", d => xScaleB(d.company_location))
         .attr("cy", d => yScaleB(d.salary_in_usd))
         .attr("r", 5)
-        .style("fill", "blue")
+        .style("fill", "steelblue")
         .attr("class", d => "scatter-plot-point remote-ratio-" + d.remote_ratio)
         .on("mouseover", function (event, d) {
             selectedRemoteRatio = d.remote_ratio;
 
+            d3.select(this)
+                .style("fill", "tan");
             // Ažurirajte boju odgovarajućeg slice-a u Pie Chartu
-            pieChartSvg.selectAll("path")
-                .attr("fill", pieData => (pieData.data[0] === selectedRemoteRatio) ? "red" : "gray");
+            d3.selectAll(".pie-part.remote-ratio-" + selectedRemoteRatio)
+            .style("fill", "tan"); // Ažurirajte boju dijela u pie chartu
 
             // Ažurirajte boje točaka u Scatter Plota koje odgovaraju odabranoj lokaciji i omjeru daljinskog rada
         })
         .on("mouseout", function () {
             // Poništite označavanje i vrati boje na prethodne vrijednosti
-            pieChartSvg.selectAll("path")
-                .attr("fill", d => d3.schemeCategory10[d.index % 10]);
+            d3.select(this)
+                .style("fill", "steelblue");
+                d3.selectAll(".pie-part.remote-ratio-" + selectedRemoteRatio)
+                .style("fill", d => d3.schemeCategory10[d.index % 10]); // Vratite originalnu boju
         });
 
     scatterPlotSvg.append("g")
@@ -170,10 +174,10 @@ d3.csv("ds_salaries.csv").then(data => {
 
     const pieChartSvg = d3.select("#pie-chart")
         .append("svg")
-        .attr("width", pieWidth) 
-        .attr("height", pieHeight) 
+        .attr("width", pieWidth)
+        .attr("height", pieHeight)
         .append("g")
-        .attr("transform", "translate(" + pieRadius + "," + pieRadius + ")"); 
+        .attr("transform", "translate(" + pieRadius + "," + pieRadius + ")");
 
     const arc = d3.arc().innerRadius(0).outerRadius(pieRadius);
 
@@ -186,14 +190,19 @@ d3.csv("ds_salaries.csv").then(data => {
     pieChartSvg.selectAll("path")
         .data(pie)
         .enter().append("path")
+        .attr("class", d => "pie-part remote-ratio-" + d.data[0])
         .attr("d", arc)
         .attr("fill", d => d3.schemeCategory10[d.index % 10])
         .on("mouseover", function (event, d) {
+            d3.select(this)
+                .style("fill", "tan");
             d3.selectAll(".scatter-plot-point.remote-ratio-" + d.data[0])
-            .style("fill", "red");
+                .style("fill", "tan");
         })
         .on("mouseout", function () {
+            d3.select(this)
+                .style("fill", d => d3.schemeCategory10[d.index % 10]);
             d3.selectAll(".scatter-plot-point")
-            .style("fill", "blue");
+                .style("fill", "steelblue");
         });
 });
