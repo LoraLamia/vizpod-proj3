@@ -6,7 +6,7 @@ d3.csv("ds_salaries.csv").then(data => {
     const tooltip = d3.select("body").append("div")
         .attr("class", "tooltip")
         .style("opacity", 0);
-    // Kreiranje stupčastog grafikona za prikaz prosječnih plaća po titulama posla
+
     const salaryByJob = d3.rollups(data, v => d3.mean(v, d => d.salary_in_usd), d => d.job_title);
 
     const margin = { top: 30, right: 50, bottom: 130, left: 100 };
@@ -26,8 +26,7 @@ d3.csv("ds_salaries.csv").then(data => {
         .attr("height", barChartHeight + margin.top + margin.bottom)
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-    // Dodavanje oznake na Y osi
+        
     barChartSvg.append("text")
         .attr("class", "y-axis-label")
         .attr("transform", "rotate(-90)")
@@ -36,20 +35,15 @@ d3.csv("ds_salaries.csv").then(data => {
         .style("text-anchor", "middle")
         .text("Average Salary (USD)");
 
-
-
-    // mislim da je dobra funckija
     const updateChart = (experienceLevel) => {
         let filteredData = experienceLevel === "ALL" ? data : data.filter(d => d.experience_level === experienceLevel);
         const salaryByJob = d3.rollups(filteredData, v => d3.mean(v, d => d.salary_in_usd), d => d.job_title);
 
-        // Ponovno postavljanje domene za X i Y osi
         xScale.domain(salaryByJob.map(d => d[0]));
         yScale.domain([0, d3.max(salaryByJob, d => d[1])]);
 
-        // Selektiranje i ažuriranje barova
         const bars = barChartSvg.selectAll(".bar")
-            .data(salaryByJob, d => d[0]); // Dodajte ključ za stabilno ažuriranje
+            .data(salaryByJob, d => d[0]); 
 
         bars.enter()
             .append("rect")
@@ -60,16 +54,15 @@ d3.csv("ds_salaries.csv").then(data => {
                 tooltip.transition()
                     .duration(200)
                     .style("opacity", .9);
-                tooltip.html(d[0]) // Postavite naziv posla kao sadržaj tooltip-a
+                tooltip.html(d[0]) 
                     .style("left", (event.pageX) + "px")
                     .style("top", (event.pageY - 28) + "px");
             })
-            // Dodajte event listener za mousemove
             .on("mousemove", function (event, d) {
                 tooltip.style("left", (event.pageX) + "px")
-                    .style(".top", (event.pageY - 28) + "px");
+                    .style("top", (event.pageY - 28) + "px");
+
             })
-            // Dodajte event listener za mouseout
             .on("mouseout", function (d) {
                 d3.select(this)
                     .style("fill", "steelblue");
@@ -77,30 +70,29 @@ d3.csv("ds_salaries.csv").then(data => {
                     .duration(500)
                     .style("opacity", 0);
             })
-            .merge(bars) // Spajanje nove i postojeće selekcije
-            .transition() // Dodajte tranziciju za glađe ažuriranje
+            .merge(bars) 
+            .transition() 
             .attr("x", d => xScale(d[0]))
             .attr("y", d => yScale(d[1]))
             .attr("width", xScale.bandwidth())
             .attr("height", d => barChartHeight - yScale(d[1]));
 
-        bars.exit().remove(); // Uklonite stare barove
+        bars.exit().remove(); 
 
-        // Ažurirajte osi ako već nisu dodane
         barChartSvg.selectAll(".x-axis").data([0]).enter().append("g").attr("class", "x-axis");
         barChartSvg.selectAll(".y-axis").data([0]).enter().append("g").attr("class", "y-axis");
 
         barChartSvg.selectAll(".x-axis")
             .attr("transform", "translate(0," + barChartHeight + ")")
             .call(d3.axisBottom(xScale))
-            .selectAll("text") // Selektiramo sve tekstualne elemente oznake x-osi
-            .attr("text-anchor", "end") // Poravnavamo tekst s kraja
-            .attr("transform", "rotate(-90)") // Rotiramo tekst za -90 stupnjeva
-            .attr("dx", "-.8em") // Pomičemo tekst udesno
+            .selectAll("text") 
+            .attr("text-anchor", "end") 
+            .attr("transform", "rotate(-90)") 
+            .attr("dx", "-.8em") 
             .attr("dy", "em");
 
         barChartSvg.selectAll(".y-axis")
-            .call(d3.axisLeft(yScale)); // Ažuriranje y-osi
+            .call(d3.axisLeft(yScale)); 
     };
 
 
@@ -110,21 +102,16 @@ d3.csv("ds_salaries.csv").then(data => {
         updateChart(this.value);
     });
 
-
+    // Scatter plot
     const locations = Array.from(new Set(data.map(d => d.company_location)));
-    const locationScale = d3.scaleOrdinal()
-        .domain(locations)
-        .range(d3.range(locations.length));
 
-
-    // Scatter Plot za 'salary_in_usd' i kodiranu 'company_location'
     const marginB = { top: 30, right: 50, bottom: 130, left: 100 };
 
-    const svgWidth = 1300; // Povećajte ovo prema potrebi
-    const svgHeight = 768; // Visina može ostati ista ili se prilagoditi
+    const svgWidth = 1300; 
+    const svgHeight = 768; 
 
     const xScaleB = d3.scalePoint()
-        .domain(['', ...locations]) // Dodavanje praznog stringa na početak niza
+        .domain(['', ...locations]) 
         .range([0, svgWidth - margin.left - margin.right]);
     const yScaleB = d3.scaleLinear()
         .domain([0, d3.max(data, d => d.salary_in_usd)])
@@ -136,7 +123,6 @@ d3.csv("ds_salaries.csv").then(data => {
         .append("g")
         .attr("transform", "translate(" + marginB.left + "," + marginB.top + ")");
 
-    let selectedLocation = null;
     let selectedRemoteRatio = null
     scatterPlotSvg.selectAll("circle")
         .data(data)
@@ -145,8 +131,8 @@ d3.csv("ds_salaries.csv").then(data => {
         .attr("cy", d => yScaleB(d.salary_in_usd))
         .attr("r", 5)
         .style("fill", "blue")
+        .attr("class", d => "scatter-plot-point remote-ratio-" + d.remote_ratio)
         .on("mouseover", function (event, d) {
-            selectedLocation = d.company_location;
             selectedRemoteRatio = d.remote_ratio;
 
             // Ažurirajte boju odgovarajućeg slice-a u Pie Chartu
@@ -157,12 +143,10 @@ d3.csv("ds_salaries.csv").then(data => {
         })
         .on("mouseout", function () {
             // Poništite označavanje i vrati boje na prethodne vrijednosti
-            selectedLocation = null;
             pieChartSvg.selectAll("path")
                 .attr("fill", d => d3.schemeCategory10[d.index % 10]);
         });
 
-    // Dodajte osi za Scatter Plot
     scatterPlotSvg.append("g")
         .attr("class", "x-axis")
         .attr("transform", "translate(0," + (svgHeight - margin.top - margin.bottom) + ")")
@@ -171,7 +155,6 @@ d3.csv("ds_salaries.csv").then(data => {
         .attr("transform", "rotate(-45)")
         .style("text-anchor", "end");
 
-    // Dodavanje y-osi
     scatterPlotSvg.append("g")
         .attr("class", "y-axis")
         .call(d3.axisLeft(yScaleB));
@@ -187,17 +170,17 @@ d3.csv("ds_salaries.csv").then(data => {
 
     const pieChartSvg = d3.select("#pie-chart")
         .append("svg")
-        .attr("width", pieWidth) // Smanjena širina
-        .attr("height", pieHeight) // Smanjena visina
+        .attr("width", pieWidth) 
+        .attr("height", pieHeight) 
         .append("g")
-        .attr("transform", "translate(" + pieRadius + "," + pieRadius + ")"); // Centriranje Pie Charta
+        .attr("transform", "translate(" + pieRadius + "," + pieRadius + ")"); 
 
     const arc = d3.arc().innerRadius(0).outerRadius(pieRadius);
 
     d3.select("#scatter-plot").style("display", "inline-block");
     d3.select("#pie-chart")
         .style("display", "inline-block")
-        .style("vertical-align", "top")// Dodajte malo margine za razmak
+        .style("vertical-align", "top")
         .style("margin-left", "20px");
 
     pieChartSvg.selectAll("path")
@@ -206,9 +189,11 @@ d3.csv("ds_salaries.csv").then(data => {
         .attr("d", arc)
         .attr("fill", d => d3.schemeCategory10[d.index % 10])
         .on("mouseover", function (event, d) {
-  
+            d3.selectAll(".scatter-plot-point.remote-ratio-" + d.data[0])
+            .style("fill", "red");
         })
         .on("mouseout", function () {
-
+            d3.selectAll(".scatter-plot-point")
+            .style("fill", "blue");
         });
 });
