@@ -5,54 +5,38 @@
     <meta charset="UTF-8">
     <title>Data Science Salaries Visualization</title>
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <style>
-        .x-axis-label {
-            font-size: 14px;
-        }
-
-        .y-axis-label {
-            font-size: 14px;
-        }
-
-        .bar {
-            fill: steelblue;
-        }
-
-        .tooltip {
-            position: fixed;
-        }
-
-        .container {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            margin-top: 50px;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 <div class="header">
-    <label for="experience-level">Odaberi Razinu Iskustva:</label>
-    <select id="experience-level">
-        <option value="ALL">Sve</option>
-        <option value="EN">Entry</option>
-        <option value="MI">Mid</option>
-        <option value="SE">Senior</option>
-        <option value="EX">Expert</option>
-    </select>
+    <h2>Data Science Salaries Visualization</h2>
+    <div class="form-group">
+        <label for="experience-level">Odaberi Razinu Iskustva:</label>
+        <select id="experience-level">
+            <option value="EN">Entry</option>
+            <option value="MI">Mid</option>
+            <option value="SE">Senior</option>
+            <option value="EX">Expert</option>
+            <option value="ALL">Sve</option>
+        </select>
+    </div>
 </div>
-<div class="container">
-    <div class="col-md-6">
+<div class="charts-container">
+    <div class="chart">
         <div id="bar-chart"></div>
     </div>
-    <div class="col-md-6">
+    <div class="chart">
         <div id="line-chart"></div>
     </div>
 </div>
-<div id="charts-container">
-    <div id="pie-chart"></div>
-    <div id="scatter-plot"></div>
+<div class="charts-container">
+    <div class="chart">
+        <div id="pie-chart"></div>
+    </div>
+    <div class="chart">
+        <div id="scatter-plot"></div>
+    </div>
 </div>
 <script src="code.js"></script>
 </body>

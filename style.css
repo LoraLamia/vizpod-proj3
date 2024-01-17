@@ -1,0 +1,67 @@
+body, html {
+    transform-origin: top left;
+    transform: scale(0.90);
+    width: 110%;
+    font-size: 110%;
+    overflow-x: hidden;
+}
+
+.bar {
+    fill: steelblue;
+}
+
+.tooltip {
+    font-size: 20px;
+    pointer-events: none;
+    position: absolute}
+
+.header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+}
+
+.charts-container {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px;
+}
+
+.chart {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #f2f2f2;
+    padding: 10px;
+}
+
+.header h1 {
+    margin-bottom: 15px;
+    font-size: 24px;
+}
+
+.form-group {
+    display: flex;
+    align-items: center;
+}
+
+.form-group label {
+    margin-right: 10px;
+    font-size: 20px;
+}
+
+.form-group select {
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+}

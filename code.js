@@ -49,23 +49,20 @@ d3.csv("ds_salaries.csv").then(data => {
             .append("rect")
             .attr("class", "bar")
             .on("mouseover", function (event, d) {
-                d3.select(this)
-                    .style("fill", "darkblue");
+                d3.select(this).style("fill", "darkblue");
                 tooltip.transition()
                     .duration(200)
                     .style("opacity", .9);
                 tooltip.html(d[0])
-                    .style("left", (event.pageX) + "px")
-                    .style("top", (event.pageY - 28) + "px");
+                    .style("left", event.pageX + "px")
+                    .style("top", (event.pageY - 40) + "px"); // Position above the cursor
             })
-            .on("mousemove", function (event, d) {
-                tooltip.style("left", (event.pageX) + "px")
-                    .style("top", (event.pageY - 28) + "px");
-
+            .on("mousemove", function (event) {
+                tooltip.style("left", event.pageX + "px")
+                    .style("top", (event.pageY - 40) + "px"); // Position above the cursor
             })
-            .on("mouseout", function (d) {
-                d3.select(this)
-                    .style("fill", "steelblue");
+            .on("mouseout", function () {
+                d3.select(this).style("fill", "steelblue");
                 tooltip.transition()
                     .duration(500)
                     .style("opacity", 0);
@@ -82,20 +79,26 @@ d3.csv("ds_salaries.csv").then(data => {
         barChartSvg.selectAll(".x-axis").data([0]).enter().append("g").attr("class", "x-axis");
         barChartSvg.selectAll(".y-axis").data([0]).enter().append("g").attr("class", "y-axis");
 
-        barChartSvg.selectAll(".x-axis")
-            .attr("transform", "translate(0," + barChartHeight + ")")
-            .call(d3.axisBottom(xScale))
-            .selectAll("text")
-            .attr("text-anchor", "end")
-            .attr("transform", "rotate(-90)")
-            .attr("dx", "-.8em")
-            .attr("dy", "em");
+        // barChartSvg.selectAll(".x-axis")
+        //     .attr("transform", "translate(0," + barChartHeight + ")")
+        //     .call(d3.axisBottom(xScale))
+        //     .selectAll("text")
+        //     .attr("text-anchor", "end")
+        //     .attr("transform", "rotate(-45)")
+        //     .style("font-size", "16px")
+        //     .attr("dx", ".8em")
+        //     .attr("dy", "-.35em");
 
         barChartSvg.selectAll(".y-axis")
-            .call(d3.axisLeft(yScale));
+            .data([0])
+            .join("g")
+            .attr("class", "y-axis")
+            .call(d3.axisLeft(yScale))
+            .selectAll("text")
+            .style("font-size", "14px");
     };
 
-    const lineChartMargin = {top: 10, right: 50, bottom: 30, left: 100};
+    const lineChartMargin = {top: 10, right: 50, bottom: 50, left: 100};
     const lineChartWidth = 960 - lineChartMargin.left - lineChartMargin.right;
     const lineChartHeight = 500 - lineChartMargin.top - lineChartMargin.bottom;
 
@@ -115,11 +118,9 @@ d3.csv("ds_salaries.csv").then(data => {
         .append("g")
         .attr("transform", "translate(" + lineChartMargin.left + "," + lineChartMargin.top + ")");
 
-    // Function to update the Line Chart
     function updateLineChart(experienceLevel) {
         let filteredData = experienceLevel === "ALL" ? data : data.filter(d => d.experience_level === experienceLevel);
 
-        // Group and average salary by company size
         const salaryByCompanySize = d3.rollups(filteredData,
             v => d3.mean(v, d => d.salary_in_usd),
             d => d.company_size)
@@ -128,7 +129,6 @@ d3.csv("ds_salaries.csv").then(data => {
         xScaleLine.domain(salaryByCompanySize.map(d => d[0]));
         yScaleLine.domain([0, d3.max(salaryByCompanySize, d => d[1])]);
 
-        // Bind the data to the line
         const lines = lineChartSvg.selectAll(".line")
             .data([salaryByCompanySize], d => d[0]);
 
@@ -138,8 +138,8 @@ d3.csv("ds_salaries.csv").then(data => {
             .transition()
             .duration(750)
             .attr("d", line)
-            .attr("fill", "none") // Ensures the area under the line isn't filled
-            .attr("stroke", "blue") // Sets the line color
+            .attr("fill", "none")
+            .attr("stroke", "blue")
             .attr("stroke-width", "2px");
 
         lines.exit().remove();
@@ -149,28 +149,47 @@ d3.csv("ds_salaries.csv").then(data => {
             .data([0])
             .join("g")
             .attr("class", "x-axis-line")
-            .attr("transform", "translate(0," + lineChartHeight + ")")
-            .call(xAxisLine);
+            .attr("transform", "translate(0," + (lineChartHeight) + ")")
+            .call(xAxisLine)
+            .selectAll("text")
+            .style("font-size", "14px");
 
-        // Create or update the Y Axis
         const yAxisLine = d3.axisLeft(yScaleLine)
-            .tickFormat(d => "$" + d3.format(",")(d)); // Format as currency
+            .tickFormat(d => "$" + d3.format(",")(d));
         lineChartSvg.selectAll(".y-axis-line")
             .data([0])
             .join("g")
             .attr("class", "y-axis-line")
-            .call(yAxisLine);
+            .attr("transform", "translate(" + ",0)")
+            .call(yAxisLine)
+            .selectAll("text")
+            .style("font-size", "14px");
+
+        lineChartSvg.append("text")
+            .attr("class", "axis-label")
+            .attr("transform", "translate(" + (lineChartWidth / 2) + ")")
+            .attr("y", lineChartHeight + lineChartMargin.bottom - 10)
+            .style("text-anchor", "middle")
+            .text("Company Size");
+
+        lineChartSvg.append("text")
+            .attr("class", "axis-label")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 0 - (lineChartMargin.left))
+            .attr("x", 0 - (lineChartHeight / 2))
+            .attr("dy", "1em")
+            .style("text-anchor", "middle")
+            .text("Average Salary (USD)");
     }
 
-    updateLineChart("ALL");
-    updateChart("ALL");
+    updateLineChart("EN");
+    updateChart("EN");
 
     d3.select("#experience-level").on("change", function () {
         updateChart(this.value);
         updateLineChart(this.value);
     });
 
-    // Scatter plot
     const locations = Array.from(new Set(data.map(d => d.company_location)));
 
     const marginB = { top: 30, right: 50, bottom: 130, left: 100 };
@@ -199,6 +218,7 @@ d3.csv("ds_salaries.csv").then(data => {
         .attr("cy", d => yScaleB(d.salary_in_usd))
         .attr("r", 5)
         .style("fill", "steelblue")
+        .style("font-size", "14px")
         .attr("class", d => "scatter-plot-point remote-ratio-" + d.remote_ratio)
         .on("mouseover", function (event, d) {
             selectedRemoteRatio = d.remote_ratio;
@@ -226,7 +246,9 @@ d3.csv("ds_salaries.csv").then(data => {
 
     scatterPlotSvg.append("g")
         .attr("class", "y-axis")
-        .call(d3.axisLeft(yScaleB));
+        .call(d3.axisLeft(yScaleB))
+        .selectAll("text")
+        .style("font-size", "14px");
 
     scatterPlotSvg.append("text")
         .attr("class", "y-axis-label")
@@ -244,7 +266,6 @@ d3.csv("ds_salaries.csv").then(data => {
         .attr("y", svgHeight - marginB.bottom - 30)
         .text("Company Location");
 
-    // Pie Chart za 'remote_ratio'
     const pieData = d3.rollups(data, v => v.length, d => d.remote_ratio);
     const pie = d3.pie().value(d => d[1])(pieData);
 
@@ -302,15 +323,20 @@ d3.csv("ds_salaries.csv").then(data => {
         .attr("d", arc)
         .attr("fill", d => d3.schemeCategory10[d.index % 10])
         .on("mouseover", function (event, d) {
-            d3.select(this)
-                .style("fill", "tan");
+            scatterPlotSvg.selectAll(".scatter-plot-point")
+                .style("display", function (pointData) {
+                    return pointData.remote_ratio === d.data[0] ? "inline" : "none";
+                });
+
             d3.selectAll(".scatter-plot-point.remote-ratio-" + d.data[0])
-                .style("fill", "tan");
+                .style("fill", "steelblue");
         })
         .on("mouseout", function () {
+            scatterPlotSvg.selectAll(".scatter-plot-point")
+                .style("display", "inline")
+                .style("fill", "steelblue");
+
             d3.select(this)
                 .style("fill", d => d3.schemeCategory10[d.index % 10]);
-            d3.selectAll(".scatter-plot-point")
-                .style("fill", "steelblue");
         });
 });
