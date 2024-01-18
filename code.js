@@ -9,7 +9,7 @@ d3.csv("ds_salaries.csv").then(data => {
 
     const salaryByJob = d3.rollups(data, v => d3.mean(v, d => d.salary_in_usd), d => d.job_title);
 
-    const margin = { top: 30, right: 50, bottom: 200, left: 100 };
+    const margin = {top: 30, right: 50, bottom: 200, left: 100};
 
     const barChartWidth = 1000, barChartHeight = 800;
     const xScale = d3.scaleBand()
@@ -35,6 +35,12 @@ d3.csv("ds_salaries.csv").then(data => {
         .style("text-anchor", "middle")
         .text("Average Salary (USD)");
 
+    barChartSvg.append("text")
+    .attr("class", "axis-label")
+    .attr("transform", "translate(" + (barChartWidth / 2) + "," + (barChartHeight + margin.bottom - 170) + ")")
+    .style("text-anchor", "middle")
+    .text("Job Description");
+
     const updateChart = (experienceLevel) => {
         let filteredData = experienceLevel === "ALL" ? data : data.filter(d => d.experience_level === experienceLevel);
         const salaryByJob = d3.rollups(filteredData, v => d3.mean(v, d => d.salary_in_usd), d => d.job_title);
@@ -55,11 +61,11 @@ d3.csv("ds_salaries.csv").then(data => {
                     .style("opacity", .9);
                 tooltip.html(d[0])
                     .style("left", event.pageX + "px")
-                    .style("top", (event.pageY - 40) + "px"); // Position above the cursor
+                    .style("top", (event.pageY - 40) + "px");
             })
             .on("mousemove", function (event) {
                 tooltip.style("left", event.pageX + "px")
-                    .style("top", (event.pageY - 40) + "px"); // Position above the cursor
+                    .style("top", (event.pageY - 40) + "px");
             })
             .on("mouseout", function () {
                 d3.select(this).style("fill", "steelblue");
@@ -192,7 +198,7 @@ d3.csv("ds_salaries.csv").then(data => {
 
     const locations = Array.from(new Set(data.map(d => d.company_location)));
 
-    const marginB = { top: 30, right: 50, bottom: 130, left: 100 };
+    const marginB = {top: 30, right: 50, bottom: 130, left: 100};
 
     const svgWidth = 1300;
     const svgHeight = 768;
