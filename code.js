@@ -1,8 +1,8 @@
 
 function createBoxPlot(data) {
     const margin = { top: 10, right: 30, bottom: 40, left: 60 },
-          width = 800 - margin.left - margin.right,
-          height = 400 - margin.top - margin.bottom;
+        width = 800 - margin.left - margin.right,
+        height = 400 - margin.top - margin.bottom;
 
     const svg = d3.select("#box-plot").append("svg")
         .attr("width", width + margin.left + margin.right)
@@ -15,34 +15,34 @@ function createBoxPlot(data) {
         .domain(data.map(d => d.employment_type))
         .paddingInner(1)
         .paddingOuter(.5);
-    
+
     const y = d3.scaleLinear()
         .domain([0, d3.max(data, d => d.max)])
         .range([height, 0]);
 
-        svg.append("g").call(d3.axisLeft(y).tickFormat(d3.format("~s")));
+    svg.append("g").call(d3.axisLeft(y).tickFormat(d3.format("~s")));
     svg.append("g").attr("transform", "translate(0," + height + ")").call(d3.axisBottom(x));
 
     svg.append("text")
-        .attr("transform", "rotate(-90)") 
-        .attr("y", 0 - margin.left - 45) 
-        .attr("x",0 - (height / 2)) 
-        .attr("dy", "3em") 
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left - 45)
+        .attr("x", 0 - (height / 2))
+        .attr("dy", "3em")
         .style("text-anchor", "middle")
-        .text("Salary");
+        .text("Salary (USD)");
 
-        svg.append("text")
-        .attr("x", width / 2) 
-        .attr("y", height + margin.bottom - 5) 
-        .style("text-anchor", "middle") 
-        .text("Employment type"); 
+    svg.append("text")
+        .attr("x", width / 2)
+        .attr("y", height + margin.bottom - 5)
+        .style("text-anchor", "middle")
+        .text("Employment type");
 
 
     const boxWidth = 100;
     data.forEach(d => {
 
         svg.append("rect")
-            .attr("x", x(d.employment_type) - boxWidth/2)
+            .attr("x", x(d.employment_type) - boxWidth / 2)
             .attr("y", y(d.q3))
             .attr("height", y(d.q1) - y(d.q3))
             .attr("width", boxWidth)
@@ -50,19 +50,19 @@ function createBoxPlot(data) {
             .style("fill", "#69b3a2");
 
         svg.append("line")
-            .attr("x1", x(d.employment_type) - boxWidth/2)
-            .attr("x2", x(d.employment_type) + boxWidth/2)
+            .attr("x1", x(d.employment_type) - boxWidth / 2)
+            .attr("x2", x(d.employment_type) + boxWidth / 2)
             .attr("y1", y(d.median))
             .attr("y2", y(d.median))
             .attr("stroke", "black");
-        
+
         svg.append("line")
             .attr("x1", x(d.employment_type))
             .attr("x2", x(d.employment_type))
             .attr("y1", y(d.min))
             .attr("y2", y(d.q1))
             .attr("stroke", "black");
-        
+
         svg.append("line")
             .attr("x1", x(d.employment_type))
             .attr("x2", x(d.employment_type))
@@ -71,15 +71,15 @@ function createBoxPlot(data) {
             .attr("stroke", "black");
 
         svg.append("line")
-            .attr("x1", x(d.employment_type) - boxWidth/4)
-            .attr("x2", x(d.employment_type) + boxWidth/4)
+            .attr("x1", x(d.employment_type) - boxWidth / 4)
+            .attr("x2", x(d.employment_type) + boxWidth / 4)
             .attr("y1", y(d.min))
             .attr("y2", y(d.min))
             .attr("stroke", "black");
-        
+
         svg.append("line")
-            .attr("x1", x(d.employment_type) - boxWidth/4)
-            .attr("x2", x(d.employment_type) + boxWidth/4)
+            .attr("x1", x(d.employment_type) - boxWidth / 4)
+            .attr("x2", x(d.employment_type) + boxWidth / 4)
             .attr("y1", y(d.max))
             .attr("y2", y(d.max))
             .attr("stroke", "black");
@@ -176,7 +176,7 @@ d3.csv("ds_salaries.csv").then(data => {
             .enter()
             .append("g")
             .attr("class", "x-axis");
-        barChartSvg.selectAll(".y-axis")   
+        barChartSvg.selectAll(".y-axis")
             .data([0])
             .enter()
             .append("g")
